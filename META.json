@@ -48,7 +48,7 @@
          "web" : "https://github.com/sharyanto/perl-App-plstrace"
       }
    },
-   "version" : "0.01",
+   "version" : "0.02",
    "x_Dist_Zilla" : {
       "perl" : {
          "version" : "5.018002"

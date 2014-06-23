@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 our $DATE = '2014-06-23'; # DATE
-our $VERSION = '0.01'; # VERSION
+our $VERSION = '0.02'; # VERSION
 
 use Debug::LTrace::plstrace;
 use Getopt::Long qw(:config auto_help auto_version bundling no_permute);
@@ -14,10 +14,12 @@ use Time::HiRes qw(time);
 my %Opts;
 my $subs;
 my $res = GetOptions(
-    't'        => sub { $Opts{show_time}++ },
-    'reltime'  => sub { $Opts{show_time} += 10 },
-    's=i'      => sub { $Opts{strsize} = $_[1] },
-    'T'        => sub { $Opts{show_spent_time} = 1 },
+    't'           => sub { $Opts{show_time}++ },
+    'reltime'     => sub { $Opts{show_time} += 10 },
+    's=i'         => sub { $Opts{strsize} = $_[1] },
+    'T'           => sub { $Opts{show_spent_time} = 1 },
+    'show-entry!' => sub { $Opts{show_entry} = $_[1] ? 1:0 },
+    'show-exit!'  => sub { $Opts{show_exit}  = $_[1] ? 1:0 },
     'e=s'      => sub {
         my $arg = $_[1];
         my ($qual, $vals) = $arg =~ /^(\w+)=(.*)/
@@ -60,14 +62,14 @@ plstrace - Trace Perl function calls
 
 =head1 VERSION
 
-This document describes version 0.01 of plstrace (from Perl distribution App-plstrace), released on 2014-06-23.
+This document describes version 0.02 of plstrace (from Perl distribution App-plstrace), released on 2014-06-23.
 
 =head1 SYNOPSIS
 
 Usage:
 
- % plstrace [--help | -h]
- % plstrace [--version | -v]
+ % plstrace --help
+ % plstrace --version
  % plstrace [PLSTRACE OPTIONS] <PROG> [PROG OPTIONS]
 
 Basic example (the only required option is C<-e trace=...> to specify which
@@ -79,10 +81,6 @@ main package (C<*>) and all subroutines in the C<Foo> package (C<Foo::*>)):
 Show time spent inside each subroutine:
 
  % plstrace -e trace=... -T your_program.pl ...
-
-More options:
-
- % plstrace -h
 
 Sample output (using C<--reltime -t> options):
 
@@ -160,6 +158,16 @@ When under C<-t>, show relative time against program start (in seconds, down to
 microseconds). Program start is measured right before plstrace exec's perl with
 Debug::LTrace::plstrace and your program. So the overhead of exec, perl startup,
 module and program compilation are all counted.
+
+=head2 --(no)hshow-entry
+
+Whether to show subroutine entry. Default is true. Use C<--noshow-entry> to hide
+showing entry traces.
+
+=head2 --(no)show-exit
+
+Whether to show subroutine exit. Default is true. Use C<--noshow-exit> to hide
+showing exit traces.
 
 =head1 SEE ALSO
 

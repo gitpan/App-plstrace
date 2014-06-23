@@ -1,7 +1,7 @@
 package App::plstrace;
 
 our $DATE = '2014-06-23'; # DATE
-our $VERSION = '0.01'; # VERSION
+our $VERSION = '0.02'; # VERSION
 
 1;
 # ABSTRACT: Trace Perl function calls
@@ -18,7 +18,7 @@ App::plstrace - Trace Perl function calls
 
 =head1 VERSION
 
-This document describes version 0.01 of App::plstrace (from Perl distribution App-plstrace), released on 2014-06-23.
+This document describes version 0.02 of App::plstrace (from Perl distribution App-plstrace), released on 2014-06-23.
 
 =head1 SYNOPSIS
 
