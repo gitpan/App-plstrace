@@ -4,18 +4,27 @@ use 5.010;
 use strict;
 use warnings;
 
-our $DATE = '2014-06-23'; # DATE
-our $VERSION = '0.02'; # VERSION
+our $DATE = '2014-06-24'; # DATE
+our $VERSION = '0.03'; # VERSION
 
 use Debug::LTrace::plstrace;
-use Getopt::Long qw(:config auto_help auto_version bundling no_permute);
+use Getopt::Long qw(:config bundling no_permute);
 use Time::HiRes qw(time);
 
 my %Opts;
 my $subs;
+my $reltime;
 my $res = GetOptions(
+    'help|h'      => sub {
+        require Pod::Usage;
+        Pod::Usage::pod2usage(-verbose=>0, -exitval=>0);
+    },
+    'version|v'   => sub {
+        say "plstrace version ", ($main::VERSION // '?');
+        exit 0;
+    },
     't'           => sub { $Opts{show_time}++ },
-    'reltime'     => sub { $Opts{show_time} += 10 },
+    'reltime'     => sub { $reltime++ },
     's=i'         => sub { $Opts{strsize} = $_[1] },
     'T'           => sub { $Opts{show_spent_time} = 1 },
     'show-entry!' => sub { $Opts{show_entry} = $_[1] ? 1:0 },
@@ -23,19 +32,21 @@ my $res = GetOptions(
     'e=s'      => sub {
         my $arg = $_[1];
         my ($qual, $vals) = $arg =~ /^(\w+)=(.*)/
-            or die "Invalid value for -e, please see documentation\n";
+            or die "plstrace: Invalid value for -e, please see documentation\n";
         #$vals = [split /,/, $vals];
         if ($qual eq 'trace') {
             $subs = $vals;
         } else {
-            die "Unknown qualifier for -e '$qual', please see documentation\n";
+            die "plstrace: Unknown qualifier for -e '$qual', please see documentation\n";
         }
     },
 );
 exit 99 unless $res;
 
-@ARGV or die "Please specify Perl program to trace\n";
-defined $subs or die "Please specify -e trace=... option\n";
+$Opts{show_time} += 10 if $Opts{show_time} && $reltime;
+
+@ARGV or die "plstrace: Please specify Perl program to trace\n";
+defined $subs or die "plstrace: Please specify -e trace=... option\n";
 my $prog = shift @ARGV;
 
 my $dlp_import = $subs;
@@ -62,14 +73,12 @@ plstrace - Trace Perl function calls
 
 =head1 VERSION
 
-This document describes version 0.02 of plstrace (from Perl distribution App-plstrace), released on 2014-06-23.
+This document describes version 0.03 of plstrace (from Perl distribution App-plstrace), released on 2014-06-24.
 
 =head1 SYNOPSIS
 
-Usage:
-
- % plstrace --help
- % plstrace --version
+ % plstrace --help (or -h)
+ % plstrace --version (or -v)
  % plstrace [PLSTRACE OPTIONS] <PROG> [PROG OPTIONS]
 
 Basic example (the only required option is C<-e trace=...> to specify which
