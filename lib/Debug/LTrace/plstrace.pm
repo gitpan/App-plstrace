@@ -12,7 +12,7 @@ use Devel::Symdump;
 use Hook::LexWrap;
 use SHARYANTO::String::Util qw/qqquote/;
 
-our $VERSION = '0.04'; # VERSION
+our $VERSION = '0.05'; # VERSION
 our $DATE = '2014-06-24'; # DATE
 
 my ($time0, $time2, $time3, $time4);
@@ -72,6 +72,7 @@ sub _new {
     $self;
 }
 
+my $prevtime;
 # Bind all hooks for tracing
 sub _start_trace {
     my ($self) = @_;
@@ -94,7 +95,10 @@ sub _start_trace {
                 my $entry_time = time();
                 my $msg = "> $sub($args)";
                 $msg = $self->_fmttime($entry_time) . " $msg" if $self->{-show_time};
-                warn "$msg\n" if $self->{-show_entry};
+                if ($self->{-show_time}) {
+                    warn "$msg\n";
+                    $prevtime = $entry_time;
+                }
                 unshift @messages, [ "$sub($args)", $entry_time ];
             },
             post => sub {
@@ -104,9 +108,13 @@ sub _start_trace {
 
                 my $res = defined($wantarray) ? " = ".$self->_esc($wantarray ? pop : [pop]) : '';
                 my $msg = "< $call_data->[0]$res";
-                $msg = $self->_fmttime($call_data->[1]) . " $msg" if $self->{-show_time};
+                $msg = $self->_fmttime($exit_time) . " $msg" if $self->{-show_time};
                 $msg .= sprintf(" <%.6f>", $exit_time - $call_data->[1] ) if $self->{-show_spent_time};
-                warn "$msg\n" if $self->{-show_exit};
+                if ($self->{-show_exit}) {
+                    warn "$msg\n";
+                    $prevtime = $exit_time;
+                }
+
             } );
     }
 
@@ -135,14 +143,15 @@ sub _fmttime {
     my ($self, $time) = @_;
 
     my @lt = localtime($time);
-    if ($self->{-show_time} > 10) {
+    my $t = $self->{-show_time};
+    if ($t > 3) {
         # we try to remove this module's effect on relative time
         # but this is negligible (all below 1ms)
         my $reltime = ($time - $time0) - ($time2-$time1) - ($time4-$time3);
-        sprintf "%010.6f", $reltime;
-    } elsif ($self->{-show_time} > 2) {
+        sprintf "%010.6f", ($t < 5 || !$prevtime ? $reltime : $time-$prevtime);
+    } elsif ($t > 2) {
         sprintf "%.6f", $time;
-    } elsif ($self->{-show_time} > 1) {
+    } elsif ($t > 1) {
         my $frac = ($time - int($time)) * 1000_000;
         sprintf "%02d:%02d:%02d.%06d", $lt[2], $lt[1], $lt[0], $frac;
     } else {
@@ -176,7 +185,7 @@ Debug::LTrace::plstrace - Implement plstrace (internal module)
 
 =head1 VERSION
 
-This document describes version 0.04 of Debug::LTrace::plstrace (from Perl distribution App-plstrace), released on 2014-06-24.
+This document describes version 0.05 of Debug::LTrace::plstrace (from Perl distribution App-plstrace), released on 2014-06-24.
 
 =for Pod::Coverage ^(.+)$
 
