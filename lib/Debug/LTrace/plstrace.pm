@@ -1,5 +1,8 @@
 package Debug::LTrace::plstrace;
 
+our $DATE = '2014-12-10'; # DATE
+our $VERSION = '0.06'; # VERSION
+
 use Time::HiRes qw/time/;
 my $time1;
 BEGIN { $time1 = time() } # time1 = the beginning of this module's compilation
@@ -10,10 +13,7 @@ use strict;
 
 use Devel::Symdump;
 use Hook::LexWrap;
-use SHARYANTO::String::Util qw/qqquote/;
-
-our $VERSION = '0.05'; # VERSION
-our $DATE = '2014-06-24'; # DATE
+use String::PerlQuote qw/double_quote/;
 
 my ($time0, $time2, $time3, $time4);
 
@@ -133,9 +133,9 @@ sub _esc {
     } elsif (ref $data) {
         "$data";
     } elsif (length($data) > $self->{-strsize}) {
-        qqquote(substr($data,0,$self->{-strsize}))."...";
+        double_quote(substr($data,0,$self->{-strsize}))."...";
     } else {
-        qqquote($data);
+        double_quote($data);
     }
 }
 
@@ -185,7 +185,7 @@ Debug::LTrace::plstrace - Implement plstrace (internal module)
 
 =head1 VERSION
 
-This document describes version 0.05 of Debug::LTrace::plstrace (from Perl distribution App-plstrace), released on 2014-06-24.
+This document describes version 0.06 of Debug::LTrace::plstrace (from Perl distribution App-plstrace), released on 2014-12-10.
 
 =for Pod::Coverage ^(.+)$
 
@@ -195,7 +195,7 @@ Please visit the project's homepage at L<https://metacpan.org/release/App-plstra
 
 =head1 SOURCE
 
-Source repository is at L<https://github.com/sharyanto/perl-App-plstrace>.
+Source repository is at L<https://github.com/perlancar/perl-App-plstrace>.
 
 =head1 BUGS
 
@@ -207,11 +207,11 @@ feature.
 
 =head1 AUTHOR
 
-Steven Haryanto <stevenharyanto@gmail.com>
+perlancar <perlancar@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2014 by Steven Haryanto.
+This software is copyright (c) 2014 by perlancar@cpan.org.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
